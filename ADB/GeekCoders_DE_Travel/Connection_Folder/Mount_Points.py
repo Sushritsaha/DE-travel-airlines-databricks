@@ -44,7 +44,21 @@ dbutils.fs.ls('/mnt/cleansed_sink_datalake')
 
 # COMMAND ----------
 
-dbutils.fs.unmount('/mnt/cleansed_sink_datalake')
+# dbutils.fs.unmount('/mnt/cleansed_sink_datalake')
+
+# COMMAND ----------
+
+# container_name = dbutils.secrets.get(scope = "geekcoders-secret", key = "container-name")
+container_name = "mart"
+storage_account_name = "geekcodersdatalakeg2dev"
+sas_token_sink_mart = dbutils.secrets.get(scope = "geekcoders-secret", key = "sas-token-sink-mart")
+
+
+dbutils.fs.mount(
+  source = f"wasbs://{container_name}@{storage_account_name}.blob.core.windows.net",
+  mount_point = "/mnt/mart_sink_datalake",
+  extra_configs = {f"fs.azure.sas.{container_name}.{storage_account_name}.blob.core.windows.net": sas_token_sink_mart}
+)
 
 # COMMAND ----------
 

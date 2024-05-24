@@ -9,23 +9,25 @@ df = spark.readStream.format("cloudFiles").option("cloudFiles.format","csv")\
 
 # COMMAND ----------
 
-dbutils.fs.rm('/dbfs/FileStore/tables/checkpointLocation/PLANE/',True)
+df_base = df.selectExpr(
+    "tailnum as tailid",
+    "type",
+    "manufacturer",
+    "to_date(issue_date) as issue_date",
+    "model",
+    "status",
+    "aircraft_type",
+    "engine_type",
+    "cast(year as int) as year",
+    "to_date(Date_Part) as Date_Part",
+)
+df_base.writeStream.trigger(once=True).format("Delta").option(
+    "checkpointLocation", "/dbfs/FileStore/tables/checkpointLocation/PLANE"
+).start("/mnt/cleansed_sink_datalake/plane")
 
 # COMMAND ----------
 
-dbutils.fs.rm('/mnt/cleansed_sink_datalake/plane',True)
-
-# COMMAND ----------
-
-df_base = df.selectExpr("tailnum as tailid", "type", "manufacturer", "to_date(issue_date) as issue_date","model" ,"status","aircraft_type","engine_type","cast('year' as int)as year", "to_date(Date_Part) as Date_Part")
-df_base.writeStream.trigger(once= True)\
-    .format("Delta")\
-    .option("checkpointLocation", "/dbfs/FileStore/tables/checkpointLocation/PLANE")\
-    .start("/mnt/cleansed_sink_datalake/plane")
-
-# COMMAND ----------
-
-df = spark.read.format('delta').load('/mnt/cleansed_sink_datalake/plane')
+display(df_base)
 
 # COMMAND ----------
 
@@ -49,7 +51,3 @@ f_delta_cleansed_load_sqlDB(schema, 'plane', 'cleansed_sink_db_geekcoders')
 
 # MAGIC %sql
 # MAGIC select * from cleansed_sink_db_geekcoders.plane;
-
-# COMMAND ----------
-
-

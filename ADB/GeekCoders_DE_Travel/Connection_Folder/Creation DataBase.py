@@ -5,10 +5,9 @@
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC
-# MAGIC SHOW DATABASES;
+# MAGIC CREATE DATABASE IF NOT EXISTS mart_geekcoders;
 
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC
+# MAGIC SHOW DATABASES;

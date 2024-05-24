@@ -12,10 +12,22 @@ df = (
 
 # COMMAND ----------
 
-from pyspark.sql.functions import year, month, dayofmonth, concat_ws, to_date, from_unixtime, unix_timestamp
+display(df)
+
+# COMMAND ----------
+
+dbutils.fs.rm('/dbfs/FileStore/tables/checkpointLocation/Flight', True)
+
+# COMMAND ----------
+
+spark.conf.set("spark.sql.legacy.timeParserPolicy", "LEGACY")
+
+# COMMAND ----------
+
+from pyspark.sql.functions import concat_ws
 
 df_base = df.selectExpr(
-    "to_date(concat_ws('-',Year,Month,DayofMonth),'yyyy-MM-dd') as date",
+    "to_date(concat_ws('-',year,month,dayofmonth),'yyyy-MM-dd') as date",
     "from_unixtime(unix_timestamp(case when DepTime=2400 then 0 else DepTime End,'HHmm'),'HH:mm')  as deptime",
     "from_unixtime(unix_timestamp(case when DepTime=2400 then 0 else DepTime End,'HHmm'),'HH:mm')  as CRSDepTime",
     "from_unixtime(unix_timestamp(case when DepTime=2400 then 0 else DepTime End,'HHmm'),'HH:mm')  as ArrTime",
@@ -44,47 +56,7 @@ df_base = df.selectExpr(
     "to_date(Date_Part,'yyyy-MM-dd') as Date_Part "
 )
 
-display(df_base)
-df_base.writeStream.trigger(once= True)\
-    .format("Delta")\
-    .option("checkpointLocation", "/dbfs/FileStore/tables/checkpointLocation/Flight")\
-    .start("/mnt/cleansed_sink_datalake/flight")
-
-# COMMAND ----------
-
-from pyspark.sql.functions import year, month, dayofmonth, concat_ws, to_date, from_unixtime, unix_timestamp
-
-df_base = df.selectExpr(
-    "date",
-    "from_unixtime(unix_timestamp(case when DepTime='2400' then '0' else DepTime end, 'HHmm'), 'HH:mm') as deptime",
-    "from_unixtime(unix_timestamp(case when CRSDepTime='2400' then '0' else CRSDepTime end, 'HHmm'), 'HH:mm') as CRSDepTime",
-    "from_unixtime(unix_timestamp(case when ArrTime='2400' then '0' else ArrTime end, 'HHmm'), 'HH:mm') as ArrTime",
-    "from_unixtime(unix_timestamp(case when CRSArrTime='2400' then '0' else CRSArrTime end, 'HHmm'), 'HH:mm') as CRSArrTime",
-    "UniqueCarrier",
-    "FlightNum",
-    "TailNum",
-    "ActualElapsedTime",
-    "CRSElapsedTime",
-    "AirTime",
-    "ArrDelay",
-    "DepDelay",
-    "Origin",
-    "Dest",
-    "Distance",
-    "TaxiIn",
-    "TaxiOut",
-    "Cancelled",
-    "CancellationCode",
-    "castDiverted",
-    "CarrierDelay",
-    "WeatherDelay",
-    "NASDelay",
-    "SecurityDelay",
-    "LateAircraftDelay",
-    "Date_Part"
-)
-
-display(df_base)
+# display(df_base)
 df_base.writeStream.trigger(once= True)\
     .format("Delta")\
     .option("checkpointLocation", "/dbfs/FileStore/tables/checkpointLocation/Flight")\

@@ -59,4 +59,9 @@ def f_count_check(database, operation_type, table_name, number_diff):
 
 # COMMAND ----------
 
-
+# MAGIC %md
+# MAGIC 1. Monthly Trend of #DELAY flights(Both Arrival and Departture)
+# MAGIC 2. No_FLIGHTS cancelled category wise
+# MAGIC 3. No_Flights in different Airlines
+# MAGIC 4. No_Airlines whose flight delayed
+# MAGIC 5. Plane data like Build Year,Aircraft Name, Engine_name
